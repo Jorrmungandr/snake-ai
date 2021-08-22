@@ -6,16 +6,21 @@ codes = {
   'food': 4
 }
 
-class MatrixService:
+codeArray = ['empty', 'wall', 'head', 'body', 'food']
+
+class Matrix:
   matrix = []
   height = 0
   width = 0
 
-  def __init__(self, width, height):
+  def __init__(self, width, height, matrix = None):
     self.width = width
     self.height = height
 
-    self.mount_matrix(width, height)
+    if (matrix):
+      self.matrix = [*matrix]
+    else:
+      self.mount_matrix(width, height)
 
   def mount_matrix(self, width, height):
     self.matrix.append([codes['wall']] * (width + 2))
@@ -35,8 +40,15 @@ class MatrixService:
     self.matrix.append([codes['wall']] * (width + 2))
 
 
-  def set_pixel(self, x, y, type):
+  def set_pixel(self, coords, type):
+    x, y = coords
     self.matrix[self.width - y][x + 1] = codes[type]
 
-  def get_pixel(self, x, y):
-    return self.matrix[self.width - y][x + 1]
+  def get_pixel(self, coords):
+    x, y = coords
+    value = self.matrix[self.width - y][x + 1]
+
+    return codeArray[value]
+
+  def replace(self, matrix):
+    self.matrix = matrix.copy()

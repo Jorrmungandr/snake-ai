@@ -1,0 +1,9 @@
+colors:
+  wall: !!python/tuple [250, 250, 250]
+  empty: !!python/tuple [32, 44, 55]
+  head: !!python/tuple [33, 131, 128]
+  body: !!python/tuple [33, 131, 128]
+  food: !!python/tuple [218, 69, 56]
+snake_speed: 0.15
+game_dimensions: [23, 23]
+window_dimensions: [800, 800]

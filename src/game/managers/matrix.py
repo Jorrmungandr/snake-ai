@@ -8,17 +8,17 @@ codes = {
 
 codeArray = ['empty', 'wall', 'head', 'body', 'food']
 
-class Matrix:
+class MatrixManager:
   matrix = []
-  height = 0
   width = 0
+  height = 0
 
-  def __init__(self, width, height, matrix = None):
+  def __init__(self, width, height, base_matrix = None):
     self.width = width
     self.height = height
 
-    if (matrix):
-      self.matrix = [*matrix]
+    if (base_matrix):
+      self.matrix = [*base_matrix]
     else:
       self.mount_matrix(width, height)
 
@@ -42,11 +42,11 @@ class Matrix:
 
   def set_pixel(self, coords, type):
     x, y = coords
-    self.matrix[self.width - y][x + 1] = codes[type]
+    self.matrix[self.height - y][x + 1] = codes[type]
 
   def get_pixel(self, coords):
     x, y = coords
-    value = self.matrix[self.width - y][x + 1]
+    value = self.matrix[self.height - y][x + 1]
 
     return codeArray[value]
 

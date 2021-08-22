@@ -1,46 +1,43 @@
 import math
 import random
-from services.matrix import Matrix
+from managers.matrix import MatrixManager
 
-class Game():
-  matrix_service = None
+class GameManager():
+  matrix_manager = None
   snake_ghost = []
   snake_size = 1
   direction = 'up'
   logs = False
   over = False
 
-  def __init__(self, matrix_service, logs = False):
-    self.matrix_service = matrix_service
+  def __init__(self, matrix_manager, logs = False):
+    self.matrix_manager = matrix_manager
     self.logs = logs
 
     self.spawn_snake()
     self.spawn_random_food()
 
   def spawn_snake(self):
-    middle_height = math.ceil(self.matrix_service.height / 2)
-    middle_width = math.ceil(self.matrix_service.width / 2)
+    middle_height = math.ceil(self.matrix_manager.height / 2)
+    middle_width = math.ceil(self.matrix_manager.width / 2)
 
-    self.matrix_service.set_pixel((middle_width - 1, middle_height - 1), 'head')
+    self.matrix_manager.set_pixel((middle_width - 1, middle_height - 1), 'head')
     self.snake_ghost = [
       { 'coords': (middle_width - 1, middle_height - 1), 'age': 1 },
     ]
 
   def spawn_random_food(self):
-    x_range = (1, self.matrix_service.width)
-    y_range = (1, self.matrix_service.height)
-
     def get_random_coords():
-      random_x = random.randint(*x_range)
-      random_y = random.randint(*y_range)
+      random_x = random.randint(1, self.matrix_manager.width)
+      random_y = random.randint(1, self.matrix_manager.height)
 
       return (random_x, random_y)
 
     def place_food():
       coords = get_random_coords()
 
-      if self.matrix_service.get_pixel(coords) == 'empty':
-        self.matrix_service.set_pixel(coords, 'food')
+      if self.matrix_manager.get_pixel(coords) == 'empty':
+        self.matrix_manager.set_pixel(coords, 'food')
       else:
         place_food()
 
@@ -49,17 +46,17 @@ class Game():
   def compile_output(self, direction):
     colision = None
 
-    new_matrix_service = Matrix(
-      self.matrix_service.width,
-      self.matrix_service.height,
-      self.matrix_service.matrix.copy()
+    new_matrix_manager = MatrixManager(
+      self.matrix_manager.width,
+      self.matrix_manager.height,
+      self.matrix_manager.matrix,
     )
 
     change_list = []
 
-    for x in range(new_matrix_service.width):
-      for y in range(new_matrix_service.height):
-        cell_value = self.matrix_service.get_pixel((x, y))
+    for x in range(new_matrix_manager.width):
+      for y in range(new_matrix_manager.height):
+        cell_value = self.matrix_manager.get_pixel((x, y))
 
         output_dict = {
           'up': (x, y + 1),
@@ -71,7 +68,7 @@ class Game():
         if (cell_value == 'head'):
           next_x, next_y = output_dict[direction]
 
-          next_pixel = self.matrix_service.get_pixel((next_x, next_y))
+          next_pixel = self.matrix_manager.get_pixel((next_x, next_y))
 
           if (next_pixel == 'wall'): colision = 'wall'
           elif (next_pixel == 'body'): colision = 'body'
@@ -99,9 +96,7 @@ class Game():
 
             self.snake_ghost = next_snake_ghost
 
-
     for dict in change_list:
-      coords = dict['coords']
-      new_matrix_service.set_pixel(dict['coords'], dict['type'])
+      new_matrix_manager.set_pixel(dict['coords'], dict['type'])
 
-    return new_matrix_service.matrix, colision
+    return new_matrix_manager.matrix, colision

@@ -1,12 +1,14 @@
 import math
 import random
-from managers.matrix import MatrixManager
+from game.managers.matrix import MatrixManager
 
 class GameManager():
   matrix_manager = None
   snake_ghost = []
   snake_size = 1
-  direction = 'up'
+  current_food_coords = None
+  current_head_coords = None
+  direction = (0, 1)
   logs = False
   over = False
 
@@ -22,6 +24,7 @@ class GameManager():
     middle_width = math.ceil(self.matrix_manager.width / 2)
 
     self.matrix_manager.set_pixel((middle_width - 1, middle_height - 1), 'head')
+    self.current_head_coords = (middle_width - 1, middle_height - 1)
     self.snake_ghost = [
       { 'coords': (middle_width - 1, middle_height - 1), 'age': 1 },
     ]
@@ -38,6 +41,7 @@ class GameManager():
 
       if self.matrix_manager.get_pixel(coords) == 'empty':
         self.matrix_manager.set_pixel(coords, 'food')
+        self.current_food_coords = coords
       else:
         place_food()
 
@@ -58,15 +62,8 @@ class GameManager():
       for y in range(new_matrix_manager.height):
         cell_value = self.matrix_manager.get_pixel((x, y))
 
-        output_dict = {
-          'up': (x, y + 1),
-          'down': (x, y - 1),
-          'right': (x + 1, y),
-          'left': (x - 1, y)
-        }
-
         if (cell_value == 'head'):
-          next_x, next_y = output_dict[direction]
+          next_x, next_y = (x + direction[0], y + direction[1])
 
           next_pixel = self.matrix_manager.get_pixel((next_x, next_y))
 
@@ -78,6 +75,7 @@ class GameManager():
               self.spawn_random_food()
 
             change_list.append({ 'coords': (next_x, next_y), 'type': 'head' })
+            self.current_head_coords = (next_x, next_y)
             change_list.append({ 'coords': (x, y), 'type': 'body' })
 
             prev_snake_ghost = self.snake_ghost

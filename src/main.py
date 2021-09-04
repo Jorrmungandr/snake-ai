@@ -1,16 +1,22 @@
 import pygame
-import os
 import threading
+import numpy as np
+import math
 
-from gui.renderer import BoardRenderer
-from utils.load_config import load_config_dict
-from managers.matrix import MatrixManager, codeArray
-from managers.game import GameManager
+from game.gui.renderer import BoardRenderer
+from game.utils.load_config import load_config_dict
+from game.managers.matrix import MatrixManager, codeArray
+from game.managers.game import GameManager
+from nn_generation.base_neural_network import BaseNeuralNetwork
+from nn_generation.calculate_nn_move import calculate_nn_move
+from utils.get_angle import get_angle
+from utils.load_yaml import load_yaml
 
 pygame.init()
 pygame.font.init()
 
-config = load_config_dict()
+config = load_yaml('src/game/config.yaml')
+absolute_direction_converter = load_yaml('src/var/direction_map.yaml')
 
 node_width = config['window_dimensions'][0] / (config['game_dimensions'][0] + 2)
 node_height = config['window_dimensions'][1] / (config['game_dimensions'][1] + 2)
@@ -22,9 +28,11 @@ screen = pygame.display.set_mode(config['window_dimensions'])
 
 renderer = BoardRenderer(screen, node_width, node_height)
 
+nn = BaseNeuralNetwork([1, 4, 3])
+
 def loop_output():
-  def func_wrapper():
-    new_matrix, colision = game_manager.compile_output(game_manager.direction)
+  def neural_net_move():
+    new_direction, new_matrix, colision = calculate_nn_move(game_manager, nn)
 
     game_manager.matrix_manager.replace(new_matrix)
 
@@ -35,9 +43,11 @@ def loop_output():
     if (colision == 'food'):
       game_manager.snake_size += 1
 
+    game_manager.direction = new_direction
+
     if (not game_manager.over): loop_output()
 
-  t = threading.Timer(config['snake_speed'], func_wrapper)
+  t = threading.Timer(config['snake_speed'], neural_net_move)
   t.start()
   return t
 
@@ -46,25 +56,6 @@ loop_output()
 running = True
 
 while running:
-  for event in pygame.event.get():
-    if event.type == pygame.QUIT:
-      running = False
-    if event.type == pygame.KEYDOWN:
-      direction_key_map = {
-        'w': (0, 1),
-        'a': (-1, 0),
-        's': (0, -1),
-        'd': (1, 0),
-      }
-
-      if (event.unicode in direction_key_map):
-        next_direction = direction_key_map[event.unicode]
-
-        if (
-          abs(next_direction[0] - game_manager.direction[0]) != 2
-          and abs(next_direction[1] - game_manager.direction[1]) != 2
-        ): game_manager.direction = next_direction
-
   if (game_manager.over == False):
     renderer.matrix(game_manager.matrix_manager.matrix, config['colors'], codeArray)
 

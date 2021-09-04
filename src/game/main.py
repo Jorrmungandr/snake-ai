@@ -3,20 +3,20 @@ import os
 import threading
 
 from gui.renderer import BoardRenderer
-from utils.load_config import load_config_dict
 from managers.matrix import MatrixManager, codeArray
 from managers.game import GameManager
+from utils.load_yaml import load_yaml
 
 pygame.init()
 pygame.font.init()
 
-config = load_config_dict()
+config = load_yaml('src/game/config.yaml')
 
 node_width = config['window_dimensions'][0] / (config['game_dimensions'][0] + 2)
 node_height = config['window_dimensions'][1] / (config['game_dimensions'][1] + 2)
 
 matrix_manager = MatrixManager(*config['game_dimensions'])
-game_manager = GameManager(matrix_manager, logs = True)
+game_manager = GameManager(matrix_manager)
 
 screen = pygame.display.set_mode(config['window_dimensions'])
 

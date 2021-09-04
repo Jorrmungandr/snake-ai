@@ -9,13 +9,10 @@ codes = {
 codeArray = ['empty', 'wall', 'head', 'body', 'food']
 
 class MatrixManager:
-  matrix = []
-  width = 0
-  height = 0
-
   def __init__(self, width, height, base_matrix = None):
     self.width = width
     self.height = height
+    self.matrix = []
 
     if (base_matrix):
       self.matrix = [*base_matrix]

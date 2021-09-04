@@ -3,18 +3,18 @@ import random
 from game.managers.matrix import MatrixManager
 
 class GameManager():
-  matrix_manager = None
-  snake_ghost = []
-  snake_size = 1
-  current_food_coords = None
-  current_head_coords = None
-  direction = (0, 1)
-  logs = False
-  over = False
-
-  def __init__(self, matrix_manager, logs = False):
+  def __init__(self, matrix_manager: MatrixManager):
     self.matrix_manager = matrix_manager
-    self.logs = logs
+    self.snake_ghost = []
+    self.snake_size = 1
+    self.current_food_coords = None
+    self.current_head_coords = None
+    self.direction = (0, 1)
+    self.over = False
+
+    number_of_tiles_in_board = matrix_manager.height * matrix_manager.width
+    self.default_energy = number_of_tiles_in_board
+    self.current_energy = number_of_tiles_in_board
 
     self.spawn_snake()
     self.spawn_random_food()
@@ -30,22 +30,22 @@ class GameManager():
     ]
 
   def spawn_random_food(self):
-    def get_random_coords():
-      random_x = random.randint(1, self.matrix_manager.width)
-      random_y = random.randint(1, self.matrix_manager.height)
+    empty_nodes = []
 
-      return (random_x, random_y)
+    for x in range(self.matrix_manager.width):
+      for y in range(self.matrix_manager.height):
+        node_value = self.matrix_manager.get_pixel((x, y))
+        if (node_value == 'empty'):
+          empty_nodes.append((x, y))
 
-    def place_food():
-      coords = get_random_coords()
+    if (len(empty_nodes) == 0): return
 
-      if self.matrix_manager.get_pixel(coords) == 'empty':
-        self.matrix_manager.set_pixel(coords, 'food')
-        self.current_food_coords = coords
-      else:
-        place_food()
+    random_index = random.randint(0, len(empty_nodes) - 1)
 
-    place_food()
+    coords = empty_nodes[random_index]
+
+    self.matrix_manager.set_pixel(coords, 'food')
+    self.current_food_coords = coords
 
   def compile_output(self, direction):
     colision = None
@@ -58,41 +58,44 @@ class GameManager():
 
     change_list = []
 
-    for x in range(new_matrix_manager.width):
-      for y in range(new_matrix_manager.height):
-        cell_value = self.matrix_manager.get_pixel((x, y))
+    x, y = self.current_head_coords
 
-        if (cell_value == 'head'):
-          next_x, next_y = (x + direction[0], y + direction[1])
+    next_x, next_y = (x + direction[0], y + direction[1])
 
-          next_pixel = self.matrix_manager.get_pixel((next_x, next_y))
+    next_pixel = self.matrix_manager.get_pixel((next_x, next_y))
 
-          if (next_pixel == 'wall'): colision = 'wall'
-          elif (next_pixel == 'body'): colision = 'body'
+    if (next_pixel == 'wall'): colision = 'wall'
+    elif (next_pixel == 'body'): colision = 'body'
+    else:
+      self.current_energy -= 1
+
+      if next_pixel == 'food':
+        colision = 'food'
+        self.current_energy = self.default_energy
+        self.spawn_random_food()
+
+      if (self.current_energy == 0):
+        colision = 'energy'
+      else:
+        change_list.append({ 'coords': (next_x, next_y), 'type': 'head' })
+        self.current_head_coords = (next_x, next_y)
+        change_list.append({ 'coords': (x, y), 'type': 'body' })
+
+        prev_snake_ghost = self.snake_ghost
+        next_snake_ghost = []
+
+        next_snake_ghost.append({ 'coords': (next_x, next_y), 'age': 1 })
+
+        for snake_bodypart in prev_snake_ghost:
+          if (snake_bodypart['age'] <= self.snake_size):
+            next_snake_ghost.append({
+              'coords': snake_bodypart['coords'],
+              'age': snake_bodypart['age'] + 1,
+            })
           else:
-            if next_pixel == 'food':
-              colision = 'food'
-              self.spawn_random_food()
+            change_list.append({ 'coords': snake_bodypart['coords'], 'type': 'empty' })
 
-            change_list.append({ 'coords': (next_x, next_y), 'type': 'head' })
-            self.current_head_coords = (next_x, next_y)
-            change_list.append({ 'coords': (x, y), 'type': 'body' })
-
-            prev_snake_ghost = self.snake_ghost
-            next_snake_ghost = []
-
-            next_snake_ghost.append({ 'coords': (next_x, next_y), 'age': 1 })
-
-            for snake_bodypart in prev_snake_ghost:
-              if (snake_bodypart['age'] <= self.snake_size):
-                next_snake_ghost.append({
-                  'coords': snake_bodypart['coords'],
-                  'age': snake_bodypart['age'] + 1,
-                })
-              else:
-                change_list.append({ 'coords': snake_bodypart['coords'], 'type': 'empty' })
-
-            self.snake_ghost = next_snake_ghost
+        self.snake_ghost = next_snake_ghost
 
     for dict in change_list:
       new_matrix_manager.set_pixel(dict['coords'], dict['type'])

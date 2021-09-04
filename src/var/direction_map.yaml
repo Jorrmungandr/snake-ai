@@ -1,55 +1,55 @@
-[
-  [ # 0
+!!python/tuple [
+  !!python/tuple [ # 0
     [], # 0
-    [ # 1
-      [ # 0
+    !!python/tuple [ # 1
+      !!python/tuple [ # 0
         null, # 0
         !!python/tuple [0, 1] # 1
       ],
-      [ # 1
+      !!python/tuple [ # 1
         !!python/tuple [1, 0] # 0
       ],
-      [ # -1
+      !!python/tuple [ # -1
         !!python/tuple [-1, 0] # 0
       ]
     ],
-    [ # -1
-      [ # 0
+    !!python/tuple [ # -1
+      !!python/tuple [ # 0
         null, # 0
         !!python/tuple [-1, 0] # 1
       ],
-      [ # 1
+      !!python/tuple [ # 1
         !!python/tuple [1, 0] # 0
       ],
-      [ # -1
+      !!python/tuple [ # -1
         !!python/tuple [1, 0] # 0
       ]
     ]
   ],
-  [ # 1
-    [ # 0
-      [ # 0
+  !!python/tuple [ # 1
+    !!python/tuple [ # 0
+      !!python/tuple [ # 0
         null, # 0
         !!python/tuple [1, 0] # 1
       ],
-      [ # 1
+      !!python/tuple [ # 1
         !!python/tuple [0, -1] # 0
       ],
-      [ # -1
+      !!python/tuple [ # -1
         !!python/tuple [0, 1] # 0
       ]
     ]
   ],
-  [ # -1
-    [ # 0
-      [ # 0
+  !!python/tuple [ # -1
+    !!python/tuple [ # 0
+      !!python/tuple [ # 0
         null, # 0
         !!python/tuple [-1, 0] # 1
       ],
-      [ # 1
+      !!python/tuple [ # 1
         !!python/tuple [0, 1] # 0
       ],
-      [ # -1
+      !!python/tuple [ # -1
         !!python/tuple [0, -1] # 0
       ]
     ]

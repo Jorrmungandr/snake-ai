@@ -2,21 +2,21 @@ import pygame
 import os
 import threading
 
-from gui.renderer import BoardRenderer
-from managers.matrix import MatrixManager, codeArray
-from managers.game import GameManager
-from utils.load_yaml import load_yaml
+from ..game import Game, Matrix, codeArray
+
+from .renderer import BoardRenderer
+from .utils.load_yaml import load_yaml
 
 pygame.init()
 pygame.font.init()
 
-config = load_yaml('src/game/config.yaml')
+config = load_yaml(os.path.join(os.path.dirname(os.path.realpath('__file__')), 'modules/gui/config.yaml'))
 
 node_width = config['window_dimensions'][0] / (config['game_dimensions'][0] + 2)
 node_height = config['window_dimensions'][1] / (config['game_dimensions'][1] + 2)
 
-matrix_manager = MatrixManager(*config['game_dimensions'])
-game_manager = GameManager(matrix_manager)
+matrix_manager = Matrix(*config['game_dimensions'])
+game_manager = Game(matrix_manager)
 
 screen = pygame.display.set_mode(config['window_dimensions'])
 
@@ -24,18 +24,11 @@ renderer = BoardRenderer(screen, node_width, node_height)
 
 def loop_output():
   def func_wrapper():
-    new_matrix, colision = game_manager.compile_output(game_manager.direction)
+    game_manager.run_step()
 
-    game_manager.matrix_manager.replace(new_matrix)
-
-    if (colision == 'wall' or colision == 'body'):
-      game_manager.over = True
+    if (game_manager.over):
       renderer.game_over(game_manager.snake_size - 1, config['window_dimensions'])
-
-    if (colision == 'food'):
-      game_manager.snake_size += 1
-
-    if (not game_manager.over): loop_output()
+    else: loop_output()
 
   t = threading.Timer(config['snake_speed'], func_wrapper)
   t.start()

@@ -8,7 +8,7 @@ codes = {
 
 codeArray = ['empty', 'wall', 'head', 'body', 'food']
 
-class MatrixManager:
+class Matrix:
   def __init__(self, width, height, base_matrix = None):
     self.width = width
     self.height = height
@@ -35,7 +35,6 @@ class MatrixManager:
       ])
 
     self.matrix.append([codes['wall']] * (width + 2))
-
 
   def set_pixel(self, coords, type):
     x, y = coords

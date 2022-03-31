@@ -1,9 +1,10 @@
 import math
 import random
-from game.managers.matrix import MatrixManager
 
-class GameManager():
-  def __init__(self, matrix_manager: MatrixManager):
+from .matrix import Matrix
+
+class Game():
+  def __init__(self, matrix_manager: Matrix):
     self.matrix_manager = matrix_manager
     self.snake_ghost = []
     self.snake_size = 1
@@ -35,6 +36,7 @@ class GameManager():
     for x in range(self.matrix_manager.width):
       for y in range(self.matrix_manager.height):
         node_value = self.matrix_manager.get_pixel((x, y))
+
         if (node_value == 'empty'):
           empty_nodes.append((x, y))
 
@@ -47,20 +49,14 @@ class GameManager():
     self.matrix_manager.set_pixel(coords, 'food')
     self.current_food_coords = coords
 
-  def compile_output(self, direction):
+  def calculate_output_matrix(self):
     colision = None
-
-    new_matrix_manager = MatrixManager(
-      self.matrix_manager.width,
-      self.matrix_manager.height,
-      self.matrix_manager.matrix,
-    )
 
     change_list = []
 
     x, y = self.current_head_coords
 
-    next_x, next_y = (x + direction[0], y + direction[1])
+    next_x, next_y = (x + self.direction[0], y + self.direction[1])
 
     next_pixel = self.matrix_manager.get_pixel((next_x, next_y))
 
@@ -97,7 +93,26 @@ class GameManager():
 
         self.snake_ghost = next_snake_ghost
 
+    new_matrix_manager = Matrix(
+      self.matrix_manager.width,
+      self.matrix_manager.height,
+      self.matrix_manager.matrix,
+    )
+
     for dict in change_list:
       new_matrix_manager.set_pixel(dict['coords'], dict['type'])
 
     return new_matrix_manager.matrix, colision
+
+  def run_step(self):
+    new_matrix, colision = self.calculate_output_matrix()
+
+    self.matrix_manager.replace(new_matrix)
+
+    if (colision == 'wall' or colision == 'body'):
+      self.over = True
+
+    if (colision == 'food'):
+      self.snake_size += 1
+
+    return colision

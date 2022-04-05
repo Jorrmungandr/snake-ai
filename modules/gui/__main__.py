@@ -10,7 +10,7 @@ from .utils.load_yaml import load_yaml
 pygame.init()
 pygame.font.init()
 
-config = load_yaml(os.path.join(os.path.dirname(os.path.realpath('__file__')), 'modules/gui/config.yaml'))
+config = load_yaml(os.path.join(os.path.dirname(os.path.realpath('__file__')), 'modules/gui/default_config.yaml'))
 
 node_width = config['window_dimensions'][0] / (config['game_dimensions'][0] + 2)
 node_height = config['window_dimensions'][1] / (config['game_dimensions'][1] + 2)

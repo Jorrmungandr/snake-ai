@@ -1,9 +1,8 @@
 import numpy as np
 
-def sigmoid(x):
-  return 1.0 / (1.0 + np.exp(-x))
+from ..utils.sigmoid import sigmoid
 
-class BaseModel:
+class MainModel:
   biases = []
   weights = []
 
@@ -15,11 +14,12 @@ class BaseModel:
   def feedforward(self, input):
     auxiliar_result = input
 
+
     for layer_biases, layer_weights in zip(self.biases, self.weights):
       auxiliar_result = sigmoid(np.dot(layer_weights, auxiliar_result) + layer_biases)
 
-    return auxiliar_result.reshape(len(self.layer_sizes[-1]))
+    return auxiliar_result.reshape(self.layer_sizes[-1], 1)
 
-  def populate_at_random(self):
+  def random_seed(self):
     self.biases = [np.random.randn(y, 1) for y in self.layer_sizes[1:]]
     self.weights = [np.random.randn(y, x) for x, y in zip(self.layer_sizes[:-1], self.layer_sizes[1:])]

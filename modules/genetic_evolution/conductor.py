@@ -1,8 +1,8 @@
 import random
 import numpy as np
 
-from generation_conduction.play_neural_network import play_nn
-from neural_network.base_model import BaseModel
+from ..neural_network.play_nn import play_nn
+from ..neural_network.models.main_model import MainModel
 
 class Conductor():
   config = {}
@@ -12,10 +12,10 @@ class Conductor():
     self.seed_length = 10
 
   def run_individual(self, biases, weights):
-    nn = BaseModel([2, 10, 10, 3], biases, weights)
+    nn = MainModel([2, 10, 10, 3], biases, weights)
 
     if (len(biases) == 0 or len(weights) == 0):
-      nn.populate_at_random()
+      nn.random_seed()
 
     return play_nn(self.config, nn)
 
